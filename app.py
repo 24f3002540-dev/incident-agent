@@ -227,6 +227,14 @@ def make_state(body: Dict) -> Dict[str, Any]:
 
     plan = plan_incident(incident, catalog, policy)
 
+    import logging
+    logging.getLogger("ga5").info(
+        "PLAN run=%s tools=%s effect_tools=%s approval=%s -> rc=%r ndiag=%d effect=%r",
+        run_id, [t.get("name") for t in catalog],
+        policy.get("effectTools"), policy.get("approvalRequiredFor"),
+        plan["rootCause"], len(plan["diagnostics"]), plan["effect"].get("toolName"),
+    )
+
     max_diag = int(policy.get("maximumDiagnostics", 3) or 3)
     diagnostics = plan["diagnostics"][:max_diag] or plan["diagnostics"][:1]
 
@@ -631,6 +639,10 @@ async def create_incident(request: Request):
 
         state = make_state(body)
         resp = advance(state)
+        logging.getLogger("ga5").info(
+            "RESP run=%s ndispatch=%d napproval=%d",
+            run_id, len(resp.get("dispatches", [])), len(resp.get("approvals", [])),
+        )
         resp = scrub(resp, state["secrets"])
         save_run(run_id, req_digest, state, resp)
     return JSONResponse(resp)

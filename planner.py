@@ -163,7 +163,9 @@ def plan_incident(incident: Dict, catalog: List[Dict], policy: Dict) -> Dict[str
             ]
         )
         plan = _parse(raw)
-    except Exception:
+    except Exception as e:
+        import logging
+        logging.getLogger("ga5").warning("MODEL CALL FAILED: %r", e)
         plan = {}
 
     # ---- validate / repair ------------------------------------------------
