@@ -1,0 +1,9 @@
+﻿.venv/
+__pycache__/
+*.db
+*.db-wal
+*.db-shm
+.env
+test_body.json
+fix_paths.py
+requirements-dev.txt
