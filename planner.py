@@ -245,7 +245,11 @@ def _stub_args(tool: Dict, incident: Dict) -> Dict[str, Any]:
         elif typ == "string":
             out[key] = incident.get("service", "unknown") if "service" in key else "unknown"
         elif typ in ("integer", "number"):
-            out[key] = spec.get("minimum", 1)
+            lo = spec.get("minimum")
+            if re.search(r"replica|count|instance|capacity|size", key, re.I):
+                out[key] = max(int(lo or 1), 4)   # scaling up is the safe default
+            else:
+                out[key] = int(lo) if lo is not None else 1
         elif typ == "boolean":
             out[key] = True
         elif typ == "array":
