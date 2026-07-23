@@ -200,15 +200,15 @@ def plan_incident(incident: Dict, catalog: List[Dict], policy: Dict) -> Dict[str
         ]
 
     eff = plan.get("effect") or {}
-    if eff.get("toolName") not in set(effect_tools) or not isinstance(
-        eff.get("arguments"), dict
-    ):
+    if eff.get("toolName") not in set(effect_tools):
         tool = next((t for t in catalog if t["name"] in effect_tools), catalog[0])
-        eff = {
-            "toolName": tool["name"],
-            "arguments": _stub_args(tool, incident),
-            "evidence": ev[:1],
-        }
+        eff = {"toolName": tool["name"], "arguments": {}, "evidence": ev[:1]}
+
+    tool = next((t for t in catalog if t["name"] == eff["toolName"]), catalog[0])
+    model_args = eff.get("arguments") if isinstance(eff.get("arguments"), dict) else {}
+    merged = _stub_args(tool, incident)
+    merged.update({k: v for k, v in model_args.items() if v is not None})
+    eff["arguments"] = merged
     eff["evidence"] = [e for e in (eff.get("evidence") or []) if e in ev] or ev[:1]
 
     return {

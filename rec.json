@@ -1,0 +1,13 @@
+﻿{
+    "outcomes":  [
+                     {
+                         "attempt":  1,
+                         "resultClass":  "diagnosis_confirmed",
+                         "callId":  "call-diag-1-8f92673fe285",
+                         "nonce":  "3e810338-efbb-49f1-8098-0f2089eea501",
+                         "actionId":  "act-diag-1-7ba215375871",
+                         "status":  200
+                     }
+                 ],
+    "receiptId":  "rc1"
+}
