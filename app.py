@@ -567,6 +567,26 @@ def advance(state: Dict) -> Dict:
 # --------------------------------------------------------------------------
 app = FastAPI()
 
+import logging, sys
+logging.basicConfig(level=logging.INFO, stream=sys.stdout)
+_log = logging.getLogger("ga5")
+
+@app.middleware("http")
+async def log_requests(request: Request, call_next):
+    body = await request.body()
+    _log.info("REQ %s %s hdrs=%s body=%s",
+              request.method, request.url.path,
+              dict(request.headers), body[:2000].decode("utf-8", "replace"))
+    async def receive():
+        return {"type": "http.request", "body": body, "more_body": False}
+    request._receive = receive
+    try:
+        resp = await call_next(request)
+    except Exception:
+        _log.exception("UNHANDLED")
+        raise
+    _log.info("RESP %s %s", request.url.path, resp.status_code)
+    return resp
 
 @app.post("/v2/incidents")
 async def create_incident(request: Request):
